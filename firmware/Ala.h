@@ -20,7 +20,7 @@ along with The Arduino ALA library.  If not, see
 #define Ala_h
 
 #include <stdint.h>
-// #include "Arduino.h"
+#include "application.h"
 
 
 ////////////////////////////////////////////////////////////////////////////////
