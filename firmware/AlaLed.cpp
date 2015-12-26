@@ -1,6 +1,6 @@
 #include "AlaLed.h"
 
-#include "ExtTlc5940.h"
+// #include "ExtTlc5940.h"
 
 
 AlaLed::AlaLed()
@@ -18,7 +18,7 @@ void AlaLed::initPWM(byte pin)
 {
 	byte *pins_ = (byte *)malloc(1);
     pins_[0] = pin;
-    
+
     initPWM(1, pins_);
 }
 
@@ -57,7 +57,7 @@ void AlaLed::initTLC5940(int numLeds, byte *pins)
 		isTlcInit=true;
 	}
 }
-	
+
 
 
 void AlaLed::setBrightness(byte maxOut)
@@ -75,7 +75,7 @@ void AlaLed::setAnimation(int animation, long speed)
 {
 	if (this->animation == animation && this->speed == speed)
 		return;
-	
+
 	this->animation = animation;
 	this->speed = speed;
 
@@ -108,7 +108,7 @@ void AlaLed::runAnimation()
 	if (millis() < lastRefreshTime + refreshMillis)
 		return;
 	lastRefreshTime = millis();
-	
+
 	if (animSeqLen != 0)
     {
         // calculate the current animation function
@@ -118,7 +118,7 @@ void AlaLed::runAnimation()
         for(int i=0; i<animSeqLen; i++)
         {
             long t = millis()%animSeqDuration;   // this loops
-			
+
             if (t>=c && t<(c+animSeq[i].duration))
             {
 				setAnimation(animSeq[i].animation, animSeq[i].speed);
@@ -142,11 +142,11 @@ void AlaLed::runAnimation()
 		{
 			for(int i=0; i<numLeds; i++)
 				Tlc.set(pins[i], leds[i]*16);
-			
+
             Tlc.update();
 		}
 	}
-	
+
 }
 
 
@@ -156,7 +156,7 @@ void AlaLed::runAnimation()
 
 void AlaLed::setAnimationFunc(int animation)
 {
-	switch(animation) 
+	switch(animation)
 	{
 		case ALA_ON:                    animFunc = &AlaLed::on;                    break;
 		case ALA_OFF:                   animFunc = &AlaLed::off;                   break;
@@ -165,7 +165,7 @@ void AlaLed::setAnimationFunc(int animation)
 		case ALA_SPARKLE:               animFunc = &AlaLed::sparkle;               break;
 		case ALA_SPARKLE2:              animFunc = &AlaLed::sparkle2;              break;
 		case ALA_STROBO:                animFunc = &AlaLed::strobo;                break;
-		
+
 		case ALA_PIXELSHIFTRIGHT:       animFunc = &AlaLed::pixelShiftRight;       break;
 		case ALA_PIXELSHIFTLEFT:        animFunc = &AlaLed::pixelShiftLeft;        break;
 		case ALA_PIXELBOUNCE:           animFunc = &AlaLed::pixelBounce;           break;
@@ -177,13 +177,13 @@ void AlaLed::setAnimationFunc(int animation)
 		case ALA_BARSHIFTLEFT:          animFunc = &AlaLed::barShiftLeft;          break;
 		case ALA_LARSONSCANNER:         animFunc = &AlaLed::larsonScanner;         break;
 		case ALA_LARSONSCANNER2:        animFunc = &AlaLed::larsonScanner2;        break;
-		
+
 		case ALA_FADEIN:                animFunc = &AlaLed::fadeIn;                break;
 		case ALA_FADEOUT:               animFunc = &AlaLed::fadeOut;               break;
 		case ALA_FADEINOUT:             animFunc = &AlaLed::fadeInOut;             break;
 		case ALA_GLOW:                  animFunc = &AlaLed::glow;                  break;
 		case ALA_FLAME:                 animFunc = &AlaLed::flame;                 break;
-		
+
 		default:                        animFunc = &AlaLed::off;
 	}
 }
@@ -258,7 +258,7 @@ void AlaLed::sparkle2()
 void AlaLed::strobo()
 {
 	int t = getStep(animStartTime, speed, ALA_STROBODC);
-	
+
 	for(int x=0; x<numLeds; x++)
     {
 		leds[x] = (t==0)*maxOut;

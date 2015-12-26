@@ -2,7 +2,7 @@
 #include "AlaLedRgb.h"
 
 #include "ExtNeoPixel.h"
-#include "ExtTlc5940.h"
+// #include "ExtTlc5940.h"
 
 
 Adafruit_NeoPixel *neopixels;
@@ -13,7 +13,7 @@ Adafruit_NeoPixel *neopixels;
 AlaLedRgb::AlaLedRgb()
 {
 	// set default values
-	
+
 	maxOut = 0xFFFFFF;
 	speed = 1000;
 	animSeqLen = 0;
@@ -30,7 +30,7 @@ void AlaLedRgb::initPWM(byte pinRed, byte pinGreen, byte pinBlue)
     pins_[0] = pinRed;
     pins_[1] = pinGreen;
     pins_[2] = pinBlue;
-    
+
     initPWM(1, pins_);
 }
 
@@ -39,7 +39,7 @@ void AlaLedRgb::initPWM(int numLeds, byte *pins)
 	this->driver = ALA_PWM;
 	this->numLeds = numLeds;
 	this->pins = pins;
-	
+
 	for (int x=0; x<3*numLeds ; x++)
 	{
 		pinMode(pins[x], OUTPUT);
@@ -80,7 +80,7 @@ void AlaLedRgb::initWS2812(int numLeds, byte pin, byte type)
 	memset(leds, 0, 3*numLeds);
 
 	neopixels = new Adafruit_NeoPixel(numLeds, pin, type);
-	
+
 	neopixels->begin();
 }
 
@@ -101,26 +101,26 @@ int AlaLedRgb::getCurrentRefreshRate()
 	return refreshRate;
 }
 
-	
+
 void AlaLedRgb::setAnimation(int animation, long speed, AlaColor color)
 {
 	// is there any change?
 	if (this->animation == animation && this->speed == speed && this->palette.numColors == 1 && this->palette.colors[0] == color)
 		return;
-	
+
 	// delete any previously allocated array
 	if (pxPos!=NULL)
 	{ delete[] pxPos; pxPos=NULL; }
 	if (pxSpeed!=NULL)
 	{ delete[] pxSpeed; pxSpeed=NULL; }
-		
+
 	this->animation = animation;
 	this->speed = speed;
-	
+
 	this->palette.numColors = 1;
 	this->palette.colors = (AlaColor*)malloc(3);
 	this->palette.colors[0] = color;
-	
+
 	setAnimationFunc(animation);
 	animStartTime = millis();
 }
@@ -130,13 +130,13 @@ void AlaLedRgb::setAnimation(int animation, long speed, AlaPalette palette)
 	// is there any change?
 	if (this->animation == animation && this->speed == speed && this->palette == palette)
 		return;
-	
+
 	// delete any previously allocated array
 	if (pxPos!=NULL)
 	{ delete[] pxPos; pxPos=NULL; }
 	if (pxSpeed!=NULL)
 	{ delete[] pxSpeed; pxSpeed=NULL; }
-	
+
 	this->animation = animation;
 	this->speed = speed;
 	this->palette = palette;
@@ -169,13 +169,13 @@ bool AlaLedRgb::runAnimation()
 	unsigned long cTime = millis();
 	if (cTime < lastRefreshTime + refreshMillis)
 		return false;
-	
+
 	// calculate real refresh rate
 	refreshRate = 1000/(cTime - lastRefreshTime);
-	
+
 	lastRefreshTime = cTime;
-	
-    
+
+
 	if (animSeqLen != 0)
     {
 		if(animSeq[currAnim].duration == 0)
@@ -197,13 +197,13 @@ bool AlaLedRgb::runAnimation()
 			}
 		}
     }
-    
+
     if (animFunc != NULL)
     {
 		(this->*animFunc)();
 
 		// use an 8 bit shift to divide by 256
-		
+
 		if(driver==ALA_PWM)
 		{
 			for(int i=0; i<numLeds; i++)
@@ -231,11 +231,11 @@ bool AlaLedRgb::runAnimation()
 			// this is not really so smart...
 			for(int i=0; i<numLeds; i++)
 				neopixels->setPixelColor(i, neopixels->Color((leds[i].r*maxOut.r)>>8, (leds[i].g*maxOut.g)>>8, (leds[i].b*maxOut.b)>>8));
-			
+
 			neopixels->show();
 		}
 	}
-	
+
 	return true;
 }
 
@@ -245,7 +245,7 @@ bool AlaLedRgb::runAnimation()
 void AlaLedRgb::setAnimationFunc(int animation)
 {
 
-    switch(animation) 
+    switch(animation)
 	{
 		case ALA_ON:                    animFunc = &AlaLedRgb::on;                    break;
 		case ALA_OFF:                   animFunc = &AlaLedRgb::off;                   break;
@@ -268,7 +268,7 @@ void AlaLedRgb::setAnimationFunc(int animation)
 		case ALA_MOVINGGRADIENT:        animFunc = &AlaLedRgb::movingGradient;        break;
 		case ALA_LARSONSCANNER:         animFunc = &AlaLedRgb::larsonScanner;         break;
 		case ALA_LARSONSCANNER2:        animFunc = &AlaLedRgb::larsonScanner2;        break;
-		
+
 		case ALA_FADEIN:                animFunc = &AlaLedRgb::fadeIn;                break;
 		case ALA_FADEOUT:               animFunc = &AlaLedRgb::fadeOut;               break;
 		case ALA_FADEINOUT:             animFunc = &AlaLedRgb::fadeInOut;             break;
@@ -350,7 +350,7 @@ void AlaLedRgb::sparkle2()
 void AlaLedRgb::strobo()
 {
 	int t = getStep(animStartTime, speed, ALA_STROBODC);
-	
+
 	AlaColor c = palette.colors[0].scale(t==0);
 	for(int x=0; x<numLeds; x++)
     {
@@ -367,7 +367,7 @@ void AlaLedRgb::pixelShiftRight()
 	int t = getStep(animStartTime, speed, numLeds);
 	float tx = getStepFloat(animStartTime, speed, palette.numColors);
 	AlaColor c = palette.getPalColor(tx);
-	
+
 	for(int x=0; x<numLeds; x++)
 	{
 		int k = (x==t ? 1:0);
@@ -380,7 +380,7 @@ void AlaLedRgb::pixelShiftLeft()
 	int t = getStep(animStartTime, speed, numLeds);
 	float tx = getStepFloat(animStartTime, speed, palette.numColors);
 	AlaColor c = palette.getPalColor(tx);
-	
+
 	for(int x=0; x<numLeds; x++)
 	{
 		int k = ((x==(numLeds-1-t) ? 1:0));
@@ -407,7 +407,7 @@ void AlaLedRgb::pixelSmoothShiftRight()
 	float t = getStepFloat(animStartTime, speed, numLeds+1);
 	float tx = getStepFloat(animStartTime, speed, palette.numColors);
 	AlaColor c = palette.getPalColor(tx);
-	
+
 	for(int x=0; x<numLeds; x++)
 	{
 		float k = max(0, (-abs(t-1-x)+1));
@@ -420,7 +420,7 @@ void AlaLedRgb::pixelSmoothShiftLeft()
 	float t = getStepFloat(animStartTime, speed, numLeds+1);
 	float tx = getStepFloat(animStartTime, speed, palette.numColors);
 	AlaColor c = palette.getPalColor(tx);
-	
+
 	for(int x=0; x<numLeds; x++)
 	{
 		float k = max(0, (-abs(numLeds-t-x)+1));
@@ -434,7 +434,7 @@ void AlaLedRgb::comet()
 	float t = getStepFloat(animStartTime, speed, 2*numLeds-l);
 	float tx = getStepFloat(animStartTime, speed, palette.numColors);
 	AlaColor c = palette.getPalColor(tx);
-	
+
 	for(int x=0; x<numLeds; x++)
 	{
 		float k = constrain( (((x-t)/l+1.2f))*(((x-t)<0)? 1:0), 0, 1);
@@ -507,7 +507,7 @@ void AlaLedRgb::fadeIn()
 {
 	float s = getStepFloat(animStartTime, speed, 1);
 	AlaColor c = palette.colors[0].scale(s);
-	
+
 	for(int x=0; x<numLeds; x++)
 	{
 		leds[x] = c;
@@ -519,7 +519,7 @@ void AlaLedRgb::fadeOut()
 {
 	float s = getStepFloat(animStartTime, speed, 1);
 	AlaColor c = palette.colors[0].scale(1-s);
-	
+
 	for(int x=0; x<numLeds; x++)
 	{
 		leds[x] = c;
@@ -558,7 +558,7 @@ void AlaLedRgb::fadeColors()
 	{
 		leds[x] = c;
 	}
-	
+
 }
 
 void AlaLedRgb::pixelsFadeColors()
@@ -634,7 +634,7 @@ void AlaLedRgb::fire()
 
     // Array of temperature readings at each simulation cell
     static byte *heat = NULL;
-	
+
 	// Initialize array if necessary
     if (heat==NULL)
         heat = new byte[numLeds];
@@ -645,13 +645,13 @@ void AlaLedRgb::fire()
 	{
       heat[i] = max(((int)heat[i]) - random(0, rMax), 0);
     }
-  
+
     // Step 2.  Heat from each cell drifts 'up' and diffuses a little
     for(int k=numLeds-1; k>=3; k--)
 	{
       heat[k] = ((int)heat[k - 1] + (int)heat[k - 2] + (int)heat[k - 3] ) / 3;
     }
-    
+
     // Step 3.  Randomly ignite new 'sparks' of heat near the bottom
     if(random(255) < SPARKING)
 	{
@@ -683,18 +683,18 @@ void AlaLedRgb::bouncingBalls()
 			pxSpeed[i] = 0;
 		}
 		lastRefresh = millis();
-		
+
 		return; // skip the first cycle
 	}
-	
+
 	float speedReduction = (float)(millis() - lastRefresh)/5000;
 	lastRefresh = millis();
- 
+
 	for (int i=0; i<palette.numColors; i++)
 	{
 		if(pxSpeed[i]>-0.04 and pxSpeed[i]<0 and pxPos[i]>0 and pxPos[i]<0.1)
 			pxSpeed[i]=(0.09)-((float)random(10)/1000);
-		
+
 		pxPos[i] = pxPos[i] + pxSpeed[i];
 		if(pxPos[i]>=1)
 		{
@@ -705,7 +705,7 @@ void AlaLedRgb::bouncingBalls()
 			pxPos[i]=-pxPos[i];
 			pxSpeed[i]=-0.91*pxSpeed[i];
 		}
-		
+
 		pxSpeed[i] = pxSpeed[i]-speedReduction;
 	}
 
@@ -737,13 +737,13 @@ void AlaLedRgb::bubbles()
 			pxSpeed[i] = 0;
 		}
 		lastRefresh = millis();
-		
+
 		return; // skip the first cycle
 	}
-	
+
 	float speedDelta = (float)(millis() - lastRefresh)/80000;
 	lastRefresh = millis();
- 
+
 	for (int i=0; i<palette.numColors; i++)
 	{
 		//pos[i] = pos[i] + speed[i];
@@ -761,7 +761,7 @@ void AlaLedRgb::bubbles()
 		{
 			pxPos[i] = pxPos[i] + pxSpeed[i];
 			pxSpeed[i] = pxSpeed[i] + speedDelta;
-		}		
+		}
 	}
 
 	for (int x=0; x<numLeds ; x++)
